@@ -5,6 +5,12 @@ import sys
 HLT = 0b00000001
 LDI = 0b10000010
 PRN = 0b01000111
+MUL = 0b10100010
+PUSH = 0b01000101
+POP = 0b01000110
+CALL = 0b01010000
+ADD = 0b10100000
+RET = 0b00010001
 
 class CPU:
     """Main CPU class."""
@@ -17,24 +23,25 @@ class CPU:
 
     def load(self):
         """Load a program into memory."""
+        try:
+            address = 0
 
-        address = 0
+            with open(sys.argv[1]) as f:
+                for line in f:
+                    
+                    comment = line.split('#')
+                    instruct = comment[0].strip()
 
-        # For now, we've just hardcoded a program:
+                    if instruct == "":
+                        continue
 
-        program = [
-            # From print8.ls8
-            0b10000010, # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111, # PRN R0
-            0b00000000,
-            0b00000001, # HLT
-        ]
+                    value = int(instruct, 2)
+                    self.ram[address] = value
+                    address += 1
 
-        for instruction in program:
-            self.ram[address] = instruction
-            address += 1
+        except FileNotFoundError as err:
+            print('\n', err, '\n')
+            
 
     def ram_read(self, mar):
         return self.ram[mar]
@@ -47,7 +54,10 @@ class CPU:
 
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
-        #elif op == "SUB": etc
+        
+        elif op == 'MUL':
+            self.reg[reg_a] *= self.reg[reg_b]
+
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -87,9 +97,16 @@ class CPU:
             elif ir == LDI:
                 self.reg[operand_a] = operand_b
                 self.pc +=3
+                print(LDI)
 
             elif ir == PRN:
                 self.pc += 2
+                print(PRN)
+
+            elif ir == MUL:
+                self.alu('MUL', operand_a, operand_b)
+                self.pc +=3
+                print(MUL)
 
             else:
                 print(f"Unknown instruction {ir}")
