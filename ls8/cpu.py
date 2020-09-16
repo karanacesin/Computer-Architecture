@@ -20,6 +20,7 @@ class CPU:
         self.ram = [0] * 256
         self.reg = [0] * 8
         self.pc = 0
+        self.sp = 7
 
     def load(self):
         """Load a program into memory."""
@@ -97,16 +98,40 @@ class CPU:
             elif ir == LDI:
                 self.reg[operand_a] = operand_b
                 self.pc +=3
-                print(LDI)
 
             elif ir == PRN:
+                print(self.reg[operand_a])
                 self.pc += 2
-                print(PRN)
 
             elif ir == MUL:
                 self.alu('MUL', operand_a, operand_b)
                 self.pc +=3
-                print(MUL)
+
+            elif ir == PUSH:
+                self.reg[self.sp] -= 1
+                value = self.reg[operand_a]
+                self.ram[self.reg[self.sp]] = value
+                self.pc += 2
+
+            elif ir == POP:
+               value =  self.ram[self.reg[self.sp]]
+               self.reg[operand_a] = value
+               self.reg[self.sp] += 1
+               self.pc += 2
+
+            elif ir == CALL:
+                self.reg[self.sp] -= 1
+                self.ram[self.reg[self.sp]] = self.pc + 2
+                self.pc = self.reg[operand_a]
+
+            elif ir == RET:
+                ret = self.ram[self.reg[self.sp]]
+                self.pc = ret
+                self.reg[self.sp] += 1
+
+            elif ir == ADD:
+                self.alu('ADD', operand_a, operand_b)
+                self.pc += 3
 
             else:
                 print(f"Unknown instruction {ir}")
