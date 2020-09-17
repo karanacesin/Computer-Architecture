@@ -11,6 +11,10 @@ POP = 0b01000110
 CALL = 0b01010000
 ADD = 0b10100000
 RET = 0b00010001
+CMP = 0b10100111
+JMP = 0B01010100
+JEQ = 0b01010101
+JNE = 0b01010110
 
 class CPU:
     """Main CPU class."""
@@ -21,6 +25,9 @@ class CPU:
         self.reg = [0] * 8
         self.pc = 0
         self.sp = 7
+        self.same = 0
+        self.less = 0
+        self.greater = 0
 
     def load(self):
         """Load a program into memory."""
@@ -58,6 +65,16 @@ class CPU:
         
         elif op == 'MUL':
             self.reg[reg_a] *= self.reg[reg_b]
+
+        elif op == 'CMP':
+            if self.reg[reg_a] == self.reg[reg_b]:
+                self.same = 1
+
+            if self.reg[reg_a] < self.reg[reg_b]:
+                self.less = 1
+
+            if self.reg[reg_a] > self.reg[reg_b]:
+                self.greater = 1
 
         else:
             raise Exception("Unsupported ALU operation")
@@ -132,6 +149,29 @@ class CPU:
             elif ir == ADD:
                 self.alu('ADD', operand_a, operand_b)
                 self.pc += 3
+
+            elif ir== CMP:
+                self.alu("CMP", operand_a, operand_b)
+                self.pc += 3
+
+            elif ir == JMP:
+                self.pc = self.reg[operand_a]
+
+            elif ir == JEQ:
+
+                if self.same == 1:
+                    self.pc = self.reg[operand_a]
+
+                else:
+                    self.pc += 2
+
+            elif ir == JNE:
+
+                if self.same != 1:
+                    self.pc = self.reg[operand_a]
+
+                else:
+                    self.pc += 2
 
             else:
                 print(f"Unknown instruction {ir}")
