@@ -16,6 +16,27 @@ JMP = 0B01010100
 JEQ = 0b01010101
 JNE = 0b01010110
 
+AND = 0b10101000
+DEC = 0b01100110
+DIV = 0b10100011
+INC = 0b01100101
+JGE = 0b01011010
+JGT = 0b01010111
+JLE = 0b01011001
+JLT = 0b01011000
+LD = 0b10000011
+
+MOD = 0b10100100
+NOP = 0b00000000
+NOT = 0b01101001
+OR = 0b10101010
+PRA = 0b01001000
+SHL = 0b10101100
+SHR = 0b10101101
+ST = 0b10000100
+SUB = 0b10100001
+XOR = 0b10101011
+
 class CPU:
     """Main CPU class."""
 
@@ -75,6 +96,39 @@ class CPU:
 
             if self.reg[reg_a] > self.reg[reg_b]:
                 self.greater = 1
+
+        elif op == 'AND':
+            self.reg[reg_a] &= self.reg[reg_b]
+
+        elif op == 'DEC':
+            self.reg[reg_a] -= 1
+
+        elif op == 'DIV':
+            self.reg[reg_a] /= self.reg[reg_b]
+
+        elif op == 'INC':
+            self.reg[reg_a] += 1
+
+        elif op == 'MOD':
+            self.reg[reg_a] %= self.reg[reg_b]
+
+        elif op == 'NOT':
+            self.reg[reg_a] != self.reg[reg_b]
+
+        elif op == 'OR':
+            self.reg[reg_a] |= self.reg[reg_b]
+
+        elif op == 'SHL':
+            self.reg[reg_a] <<= self.reg[reg_b]
+
+        elif op == 'SHR':
+            self.reg[reg_a] >>= self.reg[reg_b]
+
+        elif op == 'SUB':
+            self.reg[reg_a] -= self.reg[reg_b]
+
+        elif op == 'XOR':
+            self.reg[reg_a] ^= self.reg[reg_b]
 
         else:
             raise Exception("Unsupported ALU operation")
@@ -172,6 +226,95 @@ class CPU:
 
                 else:
                     self.pc += 2
+
+            elif ir == AND:
+                self.alu('AND', operand_a, operand_b)
+                self.pc += 3
+
+            elif ir == DEC:
+                self.alu('DEC', operand_a, 0)
+                self.pc += 3
+
+            elif ir == DIV:
+                self.alu('DIV', operand_a, operand_b)
+                self.pc += 3
+
+            elif ir == INC:
+                self.alu('INC', operand_a, 0)
+                self.pc += 3
+
+            elif ir == MOD:
+                self.alu('MOD', operand_a, operand_b)
+                self.pc += 3
+
+            elif ir == NOT:
+                self.alu('NOT', operand_a, operand_b)
+                self.pc += 3
+
+            elif ir == OR:
+                self.alu('OR', operand_a, operand_b)
+                self.pc += 3
+
+            elif ir == SHL:
+                self.alu('SHL', operand_a, operand_b)
+                self.pc += 3
+
+            elif ir == SHR:
+                self.alu('SHR', operand_a, operand_b)
+                self.pc += 3
+
+            elif ir == SUB:
+                self.alu('SUB', operand_a, operand_b)
+                self.pc += 3
+
+            elif ir == XOR:
+                self.alu('XOR', operand_a, operand_b)
+                self.pc += 3
+
+            elif ir == JGE:
+
+                if self.same == 1 or self.greater == 1:
+                    self.pc = self.reg[operand_a]
+
+                else:
+                    self.pc += 2
+
+            elif ir == JGT:
+
+                if self.greater == 1:
+                    self.pc = self.reg[operand_a]
+
+                else:
+                    self.pc += 2
+
+            elif ir == JLE:
+
+                if self.same == 1 or self.less == 1:
+                    self.pc = self.reg[operand_a]
+
+                else:
+                    self.pc += 2
+
+            elif ir == JLT:
+
+                if self.less == 1:
+                    self.pc = self.reg[operand_a]
+
+                else:
+                    self.pc += 2
+
+            elif ir == LD:
+                self.reg[operand_a] = self.ram_read(self.reg[operand_b])
+                self.pc +=3
+
+            elif ir == PRA:
+                print(chr(self.reg[operand_a]), end = '')
+
+            elif ir == ST:
+                self.ram_write(operand_a, operand_b)
+
+            elif ir == NOP:
+                pass
 
             else:
                 print(f"Unknown instruction {ir}")
