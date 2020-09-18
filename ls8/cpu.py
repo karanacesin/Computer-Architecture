@@ -46,9 +46,8 @@ class CPU:
         self.reg = [0] * 8
         self.pc = 0
         self.sp = 7
-        self.same = 0
-        self.less = 0
-        self.greater = 0
+        self.fl = 0b00000
+        
 
     def load(self):
         """Load a program into memory."""
@@ -89,13 +88,13 @@ class CPU:
 
         elif op == 'CMP':
             if self.reg[reg_a] == self.reg[reg_b]:
-                self.same = 1
+                self.fl = 0b00000001
 
             if self.reg[reg_a] < self.reg[reg_b]:
-                self.less = 1
+                self.fl = 0b00000100
 
             if self.reg[reg_a] > self.reg[reg_b]:
-                self.greater = 1
+                self.fl = 0b00000010
 
         elif op == 'AND':
             self.reg[reg_a] &= self.reg[reg_b]
@@ -213,7 +212,7 @@ class CPU:
 
             elif ir == JEQ:
 
-                if self.same == 1:
+                if self.fl == 0b00000001:
                     self.pc = self.reg[operand_a]
 
                 else:
@@ -221,7 +220,7 @@ class CPU:
 
             elif ir == JNE:
 
-                if self.same != 1:
+                if self.fl != 0b00000001:
                     self.pc = self.reg[operand_a]
 
                 else:
@@ -273,7 +272,7 @@ class CPU:
 
             elif ir == JGE:
 
-                if self.same == 1 or self.greater == 1:
+                if self.fl == 0b00000001 or self.fl == 0b00000010:
                     self.pc = self.reg[operand_a]
 
                 else:
@@ -281,7 +280,7 @@ class CPU:
 
             elif ir == JGT:
 
-                if self.greater == 1:
+                if self.fl == 0b00000010:
                     self.pc = self.reg[operand_a]
 
                 else:
@@ -289,7 +288,7 @@ class CPU:
 
             elif ir == JLE:
 
-                if self.same == 1 or self.less == 1:
+                if self.fl == 0b00000001 or self.fl == 0b00000100:
                     self.pc = self.reg[operand_a]
 
                 else:
@@ -297,7 +296,7 @@ class CPU:
 
             elif ir == JLT:
 
-                if self.less == 1:
+                if self.fl == 0b00000100:
                     self.pc = self.reg[operand_a]
 
                 else:
